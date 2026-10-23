@@ -20,10 +20,12 @@ beforeAll(async () => {
   process.env.ARB_DB_FILE = tmp;
   process.env.ARB_OUTBOX_DIR = outbox;
   process.env.NODE_ENV = 'test';
+  process.env.REQUIRE_EMAIL_VERIFICATION = 'true';
   delete process.env.SMTP_HOST;
   app = (await import('../server/app.js')).default;
 });
 afterAll(() => {
+  delete process.env.REQUIRE_EMAIL_VERIFICATION;
   try { fs.unlinkSync(tmp); } catch { /* ignore */ }
   try { fs.rmSync(outbox, { recursive: true, force: true }); } catch { /* ignore */ }
 });

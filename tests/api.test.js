@@ -12,10 +12,14 @@ beforeAll(async () => {
   fs.copyFileSync(path.join(__dirname, '..', 'server', 'data', 'db.json'), tmp);
   process.env.ARB_DB_FILE = tmp;
   process.env.NODE_ENV = 'test';
+  process.env.REQUIRE_EMAIL_VERIFICATION = 'true';
   process.env.ARB_OUTBOX_DIR = path.join(os.tmpdir(), `arb-outbox-${process.pid}`);
   app = (await import('../server/app.js')).default;
 });
-afterAll(() => { try { fs.unlinkSync(tmp); } catch { /* ignore */ } });
+afterAll(() => {
+  delete process.env.REQUIRE_EMAIL_VERIFICATION;
+  try { fs.unlinkSync(tmp); } catch { /* ignore */ }
+});
 
 const learner = { name: 'Test Learner', regNo: 'TST0001', phone: '9876543210', email: `t${Date.now()}@example.test`, password: 'secret123' };
 let token;

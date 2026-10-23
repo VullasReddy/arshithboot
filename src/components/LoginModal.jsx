@@ -47,8 +47,14 @@ export default function AuthPage({ mode = 'login', onSwitchMode, onBack, onHome,
     try {
       if (isSignup) {
         const res = await api.learnerRegister({ name, regNo, phone, email, password: form.password });
-        // New accounts must verify their email before signing in.
-        onNeedVerification(email, { code: res.devCode, status: res.emailStatus });
+        if (res.token && res.learner) {
+          onSuccess({ ...res.learner, token: res.token }, { isNew: true });
+          return;
+        }
+        if (res.verificationRequired && onNeedVerification) {
+          onNeedVerification(email, { code: res.devCode, status: res.emailStatus });
+          return;
+        }
         return;
       }
       try {
@@ -59,10 +65,17 @@ export default function AuthPage({ mode = 'login', onSwitchMode, onBack, onHome,
         const saved = readAccount(email);
         if (err.data?.code === 'NOT_FOUND' && saved && saved.password === form.password && (!saved.regNo || saved.regNo.toUpperCase() === regNo)) {
           const res = await api.learnerRegister({ name: saved.name || email.split('@')[0], regNo, phone: saved.phone || '0000000000', email, password: form.password });
-          onNeedVerification(email, { code: res.devCode, status: res.emailStatus });
+          if (res.token && res.learner) {
+            onSuccess({ ...res.learner, token: res.token }, { isNew: true });
+            return;
+          }
+          if (onNeedVerification) onNeedVerification(email, { code: res.devCode, status: res.emailStatus });
           return;
         }
-        if (err.data?.code === 'EMAIL_NOT_VERIFIED') { onNeedVerification(email, null); return; }
+        if (err.data?.code === 'EMAIL_NOT_VERIFIED') {
+          if (onNeedVerification) onNeedVerification(email, null);
+          return;
+        }
         throw err;
       }
     } catch (err) {

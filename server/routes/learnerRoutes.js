@@ -95,6 +95,8 @@ async function dispatchMail(mail) {
   return 'sending';
 }
 
+const shouldVerifyEmail = () => process.env.REQUIRE_EMAIL_VERIFICATION === 'true';
+
 router.post('/learners/register', async (req, res) => {
   const email = normEmail(req.body.email);
   const regNo = normReg(req.body.regNo);
@@ -115,6 +117,7 @@ router.post('/learners/register', async (req, res) => {
     return res.status(409).json({ success: false, field: 'regNo', message: 'This registration number is already registered to another account.' });
   }
 
+  const needsVerify = shouldVerifyEmail();
   const learner = {
     learnerId: makeLearnerId(db),
     email,
@@ -123,11 +126,17 @@ router.post('/learners/register', async (req, res) => {
     phone,
     passwordHash: bcrypt.hashSync(password, 10),
     createdAt: new Date().toISOString(),
-    emailVerified: false
+    emailVerified: !needsVerify,
+    ...(needsVerify ? {} : { emailVerifiedAt: new Date().toISOString() })
   };
   db.learners[email] = learner;
-  // The account stays inactive until the email address is verified with the emailed code.
-  const { mail, devCode } = issueVerification(req, learner);
+
+  let devCode, emailStatus = 'skipped';
+  if (needsVerify) {
+    const v = issueVerification(req, learner);
+    devCode = v.devCode;
+    emailStatus = await dispatchMail(v.mail);
+  }
 
   // Mirror into the admin "students" list so registrations show up in the admin portal.
   if (!db.students) db.students = [];
@@ -149,14 +158,24 @@ router.post('/learners/register', async (req, res) => {
   }
   saveDb(db);
 
-  const emailStatus = await dispatchMail(mail);
-  res.status(201).json({
+  if (needsVerify) {
+    return res.status(201).json({
+      success: true,
+      verificationRequired: true,
+      email,
+      emailStatus,
+      ...(devCode ? { devCode } : {}),
+      message: emailStatus === 'outbox' || emailStatus === 'failed' ? 'Your account was created, but email is not configured on this server yet.' : `We sent a 6-digit code to ${email}.`
+    });
+  }
+
+  const token = signLearnerToken(email);
+  return res.status(201).json({
     success: true,
-    verificationRequired: true,
-    email,
-    emailStatus,
-    ...(devCode ? { devCode } : {}),
-    message: emailStatus === 'outbox' || emailStatus === 'failed' ? 'Your account was created, but email is not configured on this server yet.' : `We sent a 6-digit code to ${email}.`
+    verificationRequired: false,
+    learner: publicLearner(db, learner),
+    token,
+    message: 'Account created successfully!'
   });
 });
 
@@ -255,8 +274,13 @@ router.post('/learners/login', (req, res) => {
   if (!bcrypt.compareSync(password, learner.passwordHash)) return fail('Incorrect password. Please try again.');
 
   attempts.delete(email);
-  if (learner.emailVerified === false) {
+  if (shouldVerifyEmail() && learner.emailVerified === false) {
     return res.status(403).json({ success: false, code: 'EMAIL_NOT_VERIFIED', email, message: 'Please verify your email address first. Enter the 6-digit code we emailed you.' });
+  } else if (learner.emailVerified === false) {
+    learner.emailVerified = true;
+    learner.emailVerifiedAt = new Date().toISOString();
+    delete learner.emailVerification;
+    saveDb(db);
   }
   const student = (db.students || []).find(s => normEmail(s.email) === email);
   if (student) {
