@@ -1,0 +1,218 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background-color: #FBF8F1;
+    color: #302B25;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+  /* Design tokens (mirrors tailwind.config.js so non-Tailwind CSS and SVG can share them) */
+  :root {
+    --color-forest: #013A2B; --color-evergreen: #0C2D26; --color-ivory: #FBF8F1; --color-cream: #F8F5EE;
+    --color-sage: #426557; --color-charcoal: #302B25;
+    --font-sans: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-display: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --radius-card: 1rem; --content-width: 72rem; --reading-width: 46rem;
+  }
+  /* DM Serif Display ships one weight: never let the browser fake bold or italic glyphs. */
+  h1, h2, h3, .font-display { font-family: var(--font-display); font-weight: 400; font-synthesis: none; letter-spacing: -0.005em; text-wrap: balance; overflow-wrap: break-word; }
+  h4, h5, h6 { text-wrap: balance; overflow-wrap: break-word; }
+  p, li, dd { text-wrap: pretty; overflow-wrap: break-word; }
+  body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+  ::selection { background: #BCD1C6; color: #013A2B; }
+  pre, code, textarea.font-mono, .font-mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-ligatures: none; }
+  button { -webkit-user-select: none; user-select: none; }
+  :focus-visible { outline: 2px solid #426557; outline-offset: 2px; }
+}
+
+@layer components {
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl font-semibold text-sm px-5 py-2.5 transition-all duration-200 active:scale-[.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 cursor-pointer;
+  }
+  .btn-primary { @apply btn bg-brand-900 text-ivory hover:bg-brand-950 shadow-[0_10px_24px_-12px_rgba(1,58,43,.75)] hover:shadow-[0_14px_28px_-12px_rgba(1,58,43,.85)]; }
+  .btn-plum { @apply btn bg-brand-950 text-ivory hover:bg-black/80 shadow-[0_10px_24px_-12px_rgba(12,45,38,.8)]; }
+  .btn-outline { @apply btn bg-white/70 text-brand-900 border border-brand-900/80 hover:bg-brand-900 hover:text-ivory; }
+  .btn-ghost { @apply btn text-charcoal/70 hover:text-brand-900 hover:bg-brand-50; }
+  .btn-sage { @apply btn bg-sage text-ivory hover:bg-brand-600; }
+
+  .eyebrow { @apply text-[11px] font-semibold uppercase tracking-[0.2em] text-sage; }
+
+  .card { @apply bg-white rounded-2xl border border-brand-900/10 shadow-soft; }
+  .card-hover { @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover hover:border-brand-300; }
+
+  .input {
+    @apply w-full px-4 py-3 text-sm bg-cream border border-brand-900/15 rounded-xl outline-none transition-all placeholder:text-charcoal/40 focus:bg-white focus:border-sage focus:ring-4 focus:ring-brand-100;
+  }
+
+  .chip { @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold; }
+
+  /* Code blocks in the reader and in assessments */
+  .code-block {
+    @apply bg-evergreen text-[#E9F1EC] rounded-xl p-4 text-[13px] leading-relaxed overflow-x-auto border border-black/20;
+    tab-size: 4;
+  }
+  .code-block pre { white-space: pre; margin: 0; }
+}
+
+/* Syntax colours (tuned for the evergreen code surface) */
+.tok-kw { color: #F2C879; }
+.tok-str { color: #A8D8B9; }
+.tok-num { color: #F4A98A; }
+.tok-com { color: #7E9A8E; font-style: italic; }
+.tok-fn { color: #9CCFF0; }
+.tok-tag { color: #F2C879; }
+.tok-attr { color: #C7B8F0; }
+.tok-op { color: #D5E3DB; }
+
+/* Subtle decorative leaf shapes (replace the old confetti triangles) */
+.tri { position: absolute; width: 14px; height: 14px; pointer-events: none; border-radius: 0 100% 0 100%; }
+.tri-orange { background: #426557; opacity: .55; }
+.tri-green { background: #90B1A2; opacity: .5; }
+.tri-purple { background: #013A2B; opacity: .35; }
+.tri-amber { background: #BCD1C6; opacity: .7; }
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #BCD1C6; border-radius: 999px; border: 2px solid #FBF8F1; }
+::-webkit-scrollbar-thumb:hover { background: #426557; }
+.thin-scroll::-webkit-scrollbar { width: 6px; }
+.thin-scroll::-webkit-scrollbar-thumb { border: 0; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+/* Legacy helper classes still used by admin screens */
+.dark-bezel { border: 1px solid #DDE8E2; box-shadow: 0 8px 25px rgba(1, 58, 43, 0.08); }
+.dark-bezel-lg { border: 1px solid #DDE8E2; box-shadow: 0 15px 35px rgba(1, 58, 43, 0.12); }
+.brand-bezel { border: 2px solid #013A2B; }
+.hero-gradient { background: radial-gradient(circle at 85% 15%, #DDE8E2 0%, #F8F5EE 45%, #FBF8F1 85%); }
+.cta-gradient { background: linear-gradient(135deg, #0C2D26 0%, #013A2B 55%, #1E5141 100%); }
+.card-hover-effect { transition: all .3s cubic-bezier(.4,0,.2,1); }
+.card-hover-effect:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -14px rgba(1,58,43,.25); }
+.float-animation { animation: float 4s ease-in-out infinite; }
+.float-animation-delayed { animation: float 4s ease-in-out 2s infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+/* Grain / dotted textures */
+.texture-dots { background-image: radial-gradient(rgba(1,58,43,.09) 1px, transparent 1px); background-size: 22px 22px; }
+.texture-dots-light { background-image: radial-gradient(rgba(251,248,241,.10) 1px, transparent 1px); background-size: 22px 22px; }
+
+/* Hero slideshow: slow Ken Burns zoom while a slide is visible */
+.hero-kenburns { animation: hero-kenburns 4.8s ease-out both; transform-origin: 50% 40%; }
+@keyframes hero-kenburns { from { transform: scale(1); } to { transform: scale(1.05); } }
+
+/* Skeleton shimmer */
+.skeleton { background: linear-gradient(90deg, #F1EEE5 0%, #E6EDE8 50%, #F1EEE5 100%); background-size: 200% 100%; animation: shimmer 1.6s linear infinite; }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+/* ---------- Brand loader: a growing sapling inside a ring ---------- */
+.arb-loader { position: relative; width: 84px; height: 84px; }
+.arb-loader svg { width: 100%; height: 100%; overflow: visible; }
+.arb-loader .ring { fill: none; stroke: #DDE8E2; stroke-width: 3; }
+.arb-loader .ring-arc { fill: none; stroke: #013A2B; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 60 240; transform-origin: 50% 50%; animation: arb-spin 1.4s cubic-bezier(.6,.1,.4,.9) infinite; }
+.arb-loader .stem { fill: none; stroke: #013A2B; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 40; stroke-dashoffset: 40; animation: arb-draw 2.4s ease-in-out infinite; }
+.arb-loader .leaf { transform-box: fill-box; transform-origin: bottom center; transform: scale(0); animation: arb-leaf 2.4s ease-in-out infinite; }
+.arb-loader .leaf-l { fill: #426557; transform-origin: right bottom; animation-delay: .35s; }
+.arb-loader .leaf-r { fill: #013A2B; transform-origin: left bottom; animation-delay: .55s; }
+.arb-loader .seed { fill: #426557; animation: arb-pulse 2.4s ease-in-out infinite; }
+@keyframes arb-spin { to { transform: rotate(360deg); } }
+@keyframes arb-draw { 0% { stroke-dashoffset: 40; } 35%, 80% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 40; } }
+@keyframes arb-leaf { 0%, 20% { transform: scale(0); } 45%, 80% { transform: scale(1); } 100% { transform: scale(0); } }
+@keyframes arb-pulse { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }
+
+.splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #FBF8F1; transition: opacity .5s ease, visibility .5s ease; }
+.splash.hide { opacity: 0; visibility: hidden; }
+.splash-word { font-family: 'DM Serif Display', Georgia, 'Times New Roman', serif; font-size: 24px; letter-spacing: .3em; color: #013A2B; font-weight: 400; }
+.splash-word span { display: inline-block; opacity: 0; transform: translateY(8px); animation: splash-letter .6s cubic-bezier(.2,.7,.2,1) forwards; }
+.splash-bar { width: 160px; height: 2px; background: #DDE8E2; border-radius: 9px; overflow: hidden; }
+.splash-bar i { display: block; height: 100%; width: 40%; background: #013A2B; border-radius: 9px; animation: splash-bar 1.2s ease-in-out infinite; }
+@keyframes splash-letter { to { opacity: 1; transform: none; } }
+@keyframes splash-bar { 0% { transform: translateX(-100%); } 100% { transform: translateX(250%); } }
+
+/* Mobile bottom nav spacing */
+.has-bottom-nav { padding-bottom: 72px; }
+@media (min-width: 768px) { .has-bottom-nav { padding-bottom: 0; } }
+
+/* Reveal-on-scroll (see useReveal hook) */
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s cubic-bezier(.2,.7,.2,1); }
+.reveal.is-visible { opacity: 1; transform: none; }
+
+/* Exam: block text selection during proctored final */
+.no-select, .no-select * { -webkit-user-select: none !important; user-select: none !important; }
+
+/* PDF download: pages fly into the book, the book breathes, then is stamped when done */
+@keyframes pdf-fly {
+  0% { transform: translate(-95px, -70px) rotate(-18deg) scale(.9); opacity: 0; }
+  15% { opacity: 1; }
+  70% { transform: translate(0, 18px) rotate(0deg) scale(.82); opacity: 1; }
+  100% { transform: translate(0, 34px) rotate(0deg) scale(.7); opacity: 0; }
+}
+.pdf-fly-page { animation: pdf-fly 1.8s cubic-bezier(.45, .05, .25, 1) infinite both; }
+@keyframes pdf-breathe { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-3px) rotate(1deg); } }
+.pdf-book-breathe { animation: pdf-breathe 2.4s ease-in-out infinite; }
+@keyframes pdf-book-done { 0% { transform: scale(1); } 40% { transform: scale(1.06) rotate(-2deg); } 100% { transform: scale(1); } }
+.pdf-book-done { animation: pdf-book-done .6s ease-out both; }
+@keyframes pdf-stamp { 0% { transform: scale(2.2) rotate(-25deg); opacity: 0; } 60% { transform: scale(.92) rotate(4deg); opacity: 1; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+.pdf-stamp { animation: pdf-stamp .55s cubic-bezier(.2, .9, .3, 1.2) .1s both; }
+
+/* Final-assessment celebration */
+/* diagram arrows: light flows along every connector toward the next step; section hops bob gently */
+@keyframes flow-arrow-dash { to { stroke-dashoffset: -18; } }
+.flow-arrow-dash { animation: flow-arrow-dash .9s linear infinite; }
+@keyframes flow-hop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+.flow-hop { animation: flow-hop 1.8s ease-in-out infinite; }
+@keyframes wf-flow { to { stroke-dashoffset: -32; } }
+.wf-flow { animation: wf-flow 1.2s linear infinite; }
+
+/* concept map: cards and hub enter, connectors draw in, light flows along them, hub rings pulse */
+@keyframes cm-card-in { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+.cm-card-in { animation: cm-card-in .6s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes cm-hub-in { 0% { opacity: 0; transform: scale(.6); } 70% { opacity: 1; transform: scale(1.04); } 100% { opacity: 1; transform: scale(1); } }
+.cm-hub-in { animation: cm-hub-in .8s cubic-bezier(.2, .9, .3, 1.1) both; }
+@keyframes cm-draw { from { opacity: 0; } to { opacity: 1; } }
+.cm-draw { animation: cm-draw .9s ease-out both; }
+@keyframes cm-flow { to { stroke-dashoffset: 28; } }
+@keyframes cm-flow-down { to { stroke-dashoffset: -28; } }
+.cm-flow-down { animation: cm-flow-down 1.4s linear infinite; }
+.cm-flow { animation: cm-flow 1.4s linear infinite; }
+@keyframes cm-ring { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(1.32); opacity: 0; } }
+.cm-ring { animation: cm-ring 2.8s ease-out infinite; }
+
+/* floating home button: drops in, then a slow halo pulse */
+@keyframes home-fab-in { from { transform: translateY(18px) scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+.home-fab { animation: home-fab-in .55s cubic-bezier(.2, .9, .3, 1.2) .3s both; }
+@keyframes home-fab-halo { 0% { box-shadow: 0 0 0 0 rgba(66, 101, 87, .45); } 70%, 100% { box-shadow: 0 0 0 12px rgba(66, 101, 87, 0); } }
+.home-fab-halo { animation: home-fab-halo 2.8s ease-out 1.2s infinite; }
+
+/* learning-flow step click: ripple, sparks, number pop; target section glows on arrival */
+@keyframes flow-ripple { from { width: 0; height: 0; opacity: 1; } to { width: 520px; height: 520px; opacity: 0; } }
+.flow-ripple { transform: translate(-50%, -50%); animation: flow-ripple .75s ease-out forwards; }
+@keyframes flow-spark { 0% { transform: translate(-50%, -50%) rotate(var(--a)) translateX(0) scale(1); opacity: 1; } 100% { transform: translate(-50%, -50%) rotate(var(--a)) translateX(46px) scale(0); opacity: 0; } }
+.flow-spark { animation: flow-spark .6s cubic-bezier(.2, .7, .3, 1) forwards; }
+@keyframes flow-pop { 0% { transform: scale(1); } 35% { transform: scale(1.45) rotate(-12deg); } 70% { transform: scale(.9) rotate(4deg); } 100% { transform: scale(1); } }
+.flow-pop { animation: flow-pop .55s cubic-bezier(.3, 1.4, .5, 1); }
+@keyframes flow-arrive { 0% { box-shadow: 0 0 0 0 rgba(66, 101, 87, .55); } 40% { box-shadow: 0 0 0 10px rgba(66, 101, 87, .18); } 100% { box-shadow: 0 0 0 0 rgba(66, 101, 87, 0); } }
+.flow-arrive { animation: flow-arrive 1.4s ease-out 2; }
+
+@keyframes cel-rise { from { transform: translateY(24px) scale(.96); opacity: 0; } to { transform: none; opacity: 1; } }
+.cel-rise { animation: cel-rise .7s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes cel-seal-in { 0% { transform: scale(0) rotate(-120deg); } 70% { transform: scale(1.12) rotate(8deg); } 100% { transform: scale(1) rotate(0); } }
+.cel-seal-in { animation: cel-seal-in .9s cubic-bezier(.2, .9, .25, 1.15) .25s both; }
+@keyframes cel-spin { to { transform: rotate(360deg); } }
+.cel-spin-slow { animation: cel-spin 18s linear infinite; }
+@keyframes cel-draw { from { stroke-dashoffset: var(--len, 300); } to { stroke-dashoffset: 0; } }
+.cel-draw { stroke-dasharray: var(--len, 300); animation: cel-draw 1.1s ease-out .6s both; }
+@keyframes cel-shine { 0% { transform: translateX(-130%) skewX(-20deg); } 100% { transform: translateX(230%) skewX(-20deg); } }
+.cel-shine { animation: cel-shine 2.4s ease-in-out 1.2s infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pdf-fly-page { display: none; }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  .reveal { opacity: 1; transform: none; }
+}
