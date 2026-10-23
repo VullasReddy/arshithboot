@@ -19,6 +19,7 @@ export const devCodesAllowed = () => !smtpConfigured() && process.env.NODE_ENV !
 function getTransport() {
   if (!transport) {
     const port = Number(process.env.SMTP_PORT || 587);
+    const isSecure = String(process.env.SMTP_SECURE ?? (port === 465)).toLowerCase() === 'true';
     transport = nodemailer.createTransport({
       // Keep the SMTP connection open and reuse it: a fresh connect + TLS + login to Gmail costs ~4-5 s per email.
       pool: true,
@@ -26,9 +27,12 @@ function getTransport() {
       maxMessages: Infinity,
       host: process.env.SMTP_HOST,
       port,
-      secure: String(process.env.SMTP_SECURE || (port === 465)).toLowerCase() === 'true',
+      secure: isSecure,
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 15000,
       // Gmail shows App Passwords as "abcd efgh ijkl mnop"; the spaces are not part of the password.
-      auth: { user: process.env.SMTP_USER, pass: String(process.env.SMTP_PASS).replace(/\s+/g, '') }
+      auth: { user: process.env.SMTP_USER, pass: String(process.env.SMTP_PASS || '').replace(/\s+/g, '') }
     });
   }
   return transport;

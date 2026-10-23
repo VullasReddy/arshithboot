@@ -95,7 +95,11 @@ async function dispatchMail(mail) {
   return 'sending';
 }
 
-const shouldVerifyEmail = () => process.env.REQUIRE_EMAIL_VERIFICATION === 'true';
+const shouldVerifyEmail = () => {
+  if (process.env.REQUIRE_EMAIL_VERIFICATION === 'true') return true;
+  if (process.env.REQUIRE_EMAIL_VERIFICATION === 'false') return false;
+  return smtpConfigured();
+};
 
 router.post('/learners/register', async (req, res) => {
   const email = normEmail(req.body.email);

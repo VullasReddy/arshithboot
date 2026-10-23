@@ -14,6 +14,7 @@ import quizRoutes from './routes/quizRoutes.js';
 import learnerRoutes from './routes/learnerRoutes.js';
 import practiceRoutes from './routes/practiceRoutes.js';
 import { learnerGuard } from './middleware/learnerAuth.js';
+import { smtpConfigured } from './lib/mailer.js';
 
 const app = express();
 
@@ -36,7 +37,12 @@ app.use((req, res, next) => {
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', service: 'Arshith Bootcamp Secure Backend API', timestamp: new Date().toISOString() });
+  res.json({
+    status: 'ok',
+    service: 'Arshith Bootcamp Secure Backend API',
+    emailConfigured: smtpConfigured(),
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Public address used in certificate QR codes and emails (see server/lib/publicUrl.js).
